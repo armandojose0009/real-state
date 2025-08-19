@@ -1,4 +1,4 @@
-import { IsOptional, IsNumber, IsString } from 'class-validator';
+import { IsOptional, IsNumber, IsString, IsIn } from 'class-validator';
 
 export class PropertyFilterDto {
   @IsOptional()
@@ -24,6 +24,10 @@ export class PropertyFilterDto {
   @IsOptional()
   @IsString()
   sort?: string;
+
+  @IsOptional()
+  @IsIn(['ASC', 'DESC'])
+  order?: 'ASC' | 'DESC';
 
   @IsOptional()
   @IsNumber()

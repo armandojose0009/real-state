@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Logger, Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { CacheModule } from '@nestjs/cache-manager';
@@ -83,6 +83,7 @@ import { SqsModule } from './sqs/sqs.module';
     SqsModule,
   ],
   providers: [
+    Logger,
     {
       provide: SQSClient,
       useFactory: (configService: ConfigService): SQSClient => {
@@ -111,6 +112,6 @@ import { SqsModule } from './sqs/sqs.module';
       inject: [ConfigService],
     },
   ],
-  exports: [SQSClient],
+  exports: [SQSClient, Logger],
 })
 export class AppModule {}

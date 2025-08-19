@@ -7,7 +7,6 @@ import * as bcrypt from 'bcrypt';
 import { LoginDto } from './dto/login.dto';
 import { RefreshTokenDto } from './dto/refresh-token.dto';
 import { JwtPayload } from './interfaces/jwt-payload.interface';
-import { LoggerUtils } from '../common/utils/logger.utils';
 
 @Injectable()
 export class AuthService {
@@ -68,7 +67,6 @@ export class AuthService {
     } catch (error) {
       const errorMessage =
         error instanceof Error && error.message ? error.message : String(error);
-      LoggerUtils.error('Invalid refresh token', errorMessage);
       throw new UnauthorizedException('Invalid refresh token');
     }
   }

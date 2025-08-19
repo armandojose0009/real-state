@@ -1,5 +1,5 @@
 import { IsNotEmpty, IsString, IsNumber, IsArray } from 'class-validator';
-import { Point } from 'geojson';
+import type { Point } from 'geojson';
 
 export class CreatePropertyDto {
   @IsString()

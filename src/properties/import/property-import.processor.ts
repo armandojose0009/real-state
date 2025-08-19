@@ -1,7 +1,13 @@
 import { Process, Processor } from '@nestjs/bull';
-import { Job } from 'bull';
+import type { Job } from 'bull';
 import { PropertyImportService } from './property-import.service';
 import { Logger } from '@nestjs/common';
+
+interface ImportJobData {
+  fileBuffer: string;
+  tenantId: string;
+  idempotencyKey: string;
+}
 
 @Processor('property-import')
 export class PropertyImportProcessor {
@@ -10,18 +16,15 @@ export class PropertyImportProcessor {
   constructor(private readonly propertyImportService: PropertyImportService) {}
 
   @Process()
-  async handleImport(
-    job: Job<{ fileBuffer: string; tenantId: string; idempotencyKey: string }>,
-  ) {
+  async handleImport(job: Job<ImportJobData>) {
     try {
       this.logger.log(`Processing import job: ${job.data.idempotencyKey}`);
 
       const fileBuffer = Buffer.from(job.data.fileBuffer, 'base64');
 
-      await this.propertyImportService.processImportJob(
+      await this.propertyImportService.processImport(
         fileBuffer,
         job.data.tenantId,
-        job.data.idempotencyKey,
       );
 
       this.logger.log(`Import job completed: ${job.data.idempotencyKey}`);

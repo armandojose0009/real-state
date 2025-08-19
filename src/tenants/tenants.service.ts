@@ -47,4 +47,12 @@ export class TenantsService {
 
     return tenant;
   }
+
+  async findOneByEmail(email: string): Promise<Tenant> {
+    const tenant = await this.tenantsRepository.findOne({ where: { email } });
+    if (!tenant) {
+      throw new NotFoundException(`Tenant with email ${email} not found`);
+    }
+    return tenant;
+  }
 }

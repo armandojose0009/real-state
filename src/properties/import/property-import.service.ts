@@ -5,6 +5,22 @@ import { Repository } from 'typeorm';
 import { Property } from '../entities/property.entity';
 import { parse } from 'csv-parse/sync';
 
+interface CsvRecord {
+  address: string;
+  city: string;
+  state: string;
+  zipCode: string;
+  sector: string;
+  propertyType: string;
+  longitude: number;
+  latitude: number;
+  valuation: number;
+  bedrooms: number;
+  bathrooms: number;
+  squareFeet: number;
+  yearBuilt: number;
+}
+
 @Injectable()
 export class PropertyImportService {
   private logger = new Logger(PropertyImportService.name);
@@ -14,6 +30,68 @@ export class PropertyImportService {
     private propertyRepository: Repository<Property>,
     private sqsService: SqsService,
   ) {}
+
+  async processImport(fileBuffer: Buffer, tenantId: string): Promise<void> {
+    const records: CsvRecord[] = parse(fileBuffer, {
+      columns: true,
+      skip_empty_lines: true,
+      cast: (value, context) => {
+        if (context.header) return value;
+
+        const column = String(context.column);
+
+        if (['longitude', 'latitude', 'valuation'].includes(column)) {
+          return parseFloat(value);
+        }
+        if (
+          ['bedrooms', 'bathrooms', 'squareFeet', 'yearBuilt'].includes(column)
+        ) {
+          return parseInt(value, 10);
+        }
+        return value;
+      },
+    });
+
+    const batchSize = 500;
+
+    for (let i = 0; i < records.length; i += batchSize) {
+      const batch = records.slice(i, i + batchSize);
+
+      const properties = batch.map((record) => ({
+        address: record.address,
+        city: record.city,
+        state: record.state,
+        zipCode: record.zipCode,
+        sector: record.sector,
+        propertyType: record.propertyType,
+        location: () => `POINT(${record.longitude} ${record.latitude})`,
+        valuation: record.valuation,
+        bedrooms: record.bedrooms,
+        bathrooms: record.bathrooms,
+        squareFeet: record.squareFeet,
+        yearBuilt: record.yearBuilt,
+        tenantId,
+      }));
+
+      await this.propertyRepository
+        .createQueryBuilder()
+        .insert()
+        .into(Property)
+        .values(properties)
+        .orUpdate(
+          [
+            'valuation',
+            'location',
+            'bedrooms',
+            'bathrooms',
+            'squareFeet',
+            'yearBuilt',
+          ],
+          ['address', 'tenantId'],
+        )
+        .execute();
+    }
+  }
 
   async enqueueImportJob(
     fileBuffer: Buffer,
@@ -29,46 +107,5 @@ export class PropertyImportService {
       'property-import',
       idempotencyKey,
     );
-  }
-
-  async processImport(fileBuffer: Buffer, tenantId: string): Promise<void> {
-    const records = parse(fileBuffer, {
-      columns: true,
-      skip_empty_lines: true,
-    });
-    const batchSize = 500;
-
-    for (let i = 0; i < records.length; i += batchSize) {
-      const batch = records.slice(i, i + batchSize);
-      const properties = batch.map((record) => ({
-        address: record.address,
-        city: record.city,
-        state: record.state,
-        zipCode: record.zipCode,
-        sector: record.sector,
-        propertyType: record.propertyType,
-        location: {
-          type: 'Point',
-          coordinates: [
-            parseFloat(record.longitude),
-            parseFloat(record.latitude),
-          ],
-        },
-        valuation: parseFloat(record.valuation),
-        bedrooms: parseInt(record.bedrooms),
-        bathrooms: parseInt(record.bathrooms),
-        squareFeet: parseInt(record.squareFeet),
-        yearBuilt: parseInt(record.yearBuilt),
-        tenantId,
-      }));
-
-      await this.propertyRepository
-        .createQueryBuilder()
-        .insert()
-        .into(Property)
-        .values(properties)
-        .orUpdate(['valuation', 'location'], ['address', 'tenantId'])
-        .execute();
-    }
   }
 }

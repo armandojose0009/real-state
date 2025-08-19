@@ -12,7 +12,7 @@ import {
 import { Listing } from '../../listings/entities/listing.entity';
 import { Transaction } from '../../transactions/entities/transaction.entity';
 import { Tenant } from '../../tenants/entities/tenant.entity';
-import { Point } from 'geojson';
+import type { Point } from 'geojson';
 
 @Entity()
 @Index(['tenantId'])

@@ -77,9 +77,40 @@ export class PropertiesService {
       where: { id, tenantId, deletedAt: Not(IsNull()) },
     });
     if (!property) throw new NotFoundException('Deleted property not found');
-    property.deletedAt = null;
+    property.deletedAt = null as unknown as Date;
     await this.invalidateCache(tenantId);
     return this.propertyRepository.save(property);
+  }
+
+  async findByRadius(
+    lat: number,
+    lng: number,
+    radius: number,
+    tenantId: string,
+  ): Promise<Property[]> {
+    const cacheKey = `properties:radius:${tenantId}:${lat}:${lng}:${radius}`;
+    const cached = await this.cacheManager.get<Property[]>(cacheKey);
+
+    if (cached) {
+      return cached;
+    }
+
+    const properties = await this.propertyRepository
+      .createQueryBuilder('property')
+      .where('property.tenantId = :tenantId', { tenantId })
+      .andWhere('property.deletedAt IS NULL')
+      .andWhere(
+        `ST_DWithin(
+          ST_MakePoint(:lng, :lat)::geography,
+          property.location::geography,
+          :radius
+        )`,
+        { lat, lng, radius },
+      )
+      .getMany();
+
+    await this.cacheManager.set(cacheKey, properties, this.CACHE_TTL);
+    return properties;
   }
 
   private buildQuery(filterDto: PropertyFilterDto, tenantId: string) {
@@ -108,23 +139,25 @@ export class PropertiesService {
       });
     }
     if (filterDto.sort) {
-      query.orderBy(`property.${filterDto.sort}`, filterDto.order || 'ASC');
+      const orderDirection = filterDto.order ? filterDto.order : 'ASC';
+      query.orderBy(`property.${filterDto.sort}`, orderDirection);
     }
 
     return query;
   }
 
   private getCacheKey(filterDto: PropertyFilterDto, tenantId: string): string {
-    const { sort, order, ...rest } = filterDto;
+    const { sort, order, ...rest } = filterDto as any;
     return `properties:${tenantId}:${JSON.stringify(rest)}`;
   }
 
   private async invalidateCache(tenantId: string): Promise<void> {
     const pattern = `properties:${tenantId}:*`;
-    const keys = await this.cacheManager.store.keys(pattern);
+    const cache = this.cacheManager as any;
+    const keys = await cache.keys(pattern);
 
     if (keys?.length) {
-      await this.cacheManager.store.mdel(...keys);
+      await cache.del(keys);
     }
   }
 }
