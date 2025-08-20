@@ -5,29 +5,36 @@ services:
       - '3000:3000'
     environment:
       - NODE_ENV=${NODE_ENV}
-      - DB_HOST=${DB_HOST}
-      - DB_PORT=${DB_PORT}
+      - DB_HOST=postgres
+      - DB_PORT=5432
       - DB_USERNAME=${DB_USERNAME}
       - DB_PASSWORD=${DB_PASSWORD}
       - DB_DATABASE=${DB_DATABASE}
-      - REDIS_HOST=${REDIS_HOST}
-      - REDIS_PORT=${REDIS_PORT}
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
       - JWT_SECRET=${JWT_SECRET}
       - JWT_EXPIRES_IN=${JWT_EXPIRES_IN}
       - REFRESH_TOKEN_SECRET=${REFRESH_TOKEN_SECRET}
       - REFRESH_TOKEN_EXPIRES_IN=${REFRESH_TOKEN_EXPIRES_IN}
-      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
-      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
-      - AWS_REGION=${AWS_REGION}
-      - SQS_ENDPOINT=${SQS_ENDPOINT}
-      - SQS_QUEUE_NAME=${SQS_QUEUE_NAME}
+      - AWS_ACCESS_KEY_ID=test
+      - AWS_SECRET_ACCESS_KEY=test
+      - AWS_REGION=${AWS_REGION:-us-east-1}
+      - SQS_ENDPOINT=http://localstack:4566
+      - SQS_QUEUE_NAME=${SQS_QUEUE_NAME:-real-estate-queue}
+      - AWS_S3_ENDPOINT=http://localstack:4566
+      - AWS_S3_BUCKET=${AWS_S3_BUCKET:-real-estate-bucket}
     depends_on:
-      - postgres
-      - redis
-      - localstack
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      localstack:
+        condition: service_started
     volumes:
       - .:/app
       - /app/node_modules
+    networks:
+      - real-estate-network
 
   postgres:
     image: postgis/postgis:14-3.3
@@ -36,7 +43,7 @@ services:
       - POSTGRES_PASSWORD=${DB_PASSWORD}
       - POSTGRES_DB=${DB_DATABASE}
     ports:
-      - '${DB_PORT}:5432'
+      - '${DB_PORT:-5432}:5432'
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
@@ -44,11 +51,13 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
+    networks:
+      - real-estate-network
 
   redis:
     image: redis:6-alpine
     ports:
-      - '${REDIS_PORT}:6379'
+      - '${REDIS_PORT:-6379}:6379'
     volumes:
       - redis_data:/data
     healthcheck:
@@ -56,6 +65,8 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
+    networks:
+      - real-estate-network
 
   localstack:
     image: localstack/localstack:latest
@@ -63,14 +74,29 @@ services:
       - '4566:4566'
       - '4571:4571'
     environment:
-      - SERVICES=sqs
-      - DEFAULT_REGION=${AWS_REGION}
-      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
-      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+      - SERVICES=sqs,s3 # Agregar s3 a los servicios
+      - DEFAULT_REGION=${AWS_REGION:-us-east-1}
+      - AWS_ACCESS_KEY_ID=test
+      - AWS_SECRET_ACCESS_KEY=test
+      - AWS_DEFAULT_REGION=${AWS_REGION:-us-east-1}
       - DEBUG=1
+      - EDGE_PORT=4566
+      - HOSTNAME_EXTERNAL=localstack
     volumes:
-      - ./localstack:/docker-entrypoint-initaws.d
+      - ./scripts/localstack-init.sh:/docker-entrypoint-initaws.d/localstack-init.sh
+      - /var/run/docker.sock:/var/run/docker.sock
+    healthcheck:
+      test: ['CMD', 'curl', '-f', 'http://localhost:4566/health']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - real-estate-network
 
 volumes:
   postgres_data:
   redis_data:
+
+networks:
+  real-estate-network:
+    driver: bridge

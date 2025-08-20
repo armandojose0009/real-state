@@ -6,7 +6,6 @@ import { HttpExceptionFilter } from './common/filters/http-exception.filter';
 import { TransformInterceptor } from './common/interceptors/transform.interceptor';
 import helmet from 'helmet';
 import compression from 'compression';
-import { ThrottlerGuard } from '@nestjs/throttler';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { json, urlencoded } from 'express';
 import { initializeTransactionalContext } from 'typeorm-transactional';
@@ -19,7 +18,7 @@ async function bootstrap() {
     bufferLogs: true,
   });
 
-  const logger = app.get(Logger);
+  const logger = new Logger('Bootstrap');
   app.useLogger(logger);
 
   app.use(helmet());
@@ -44,8 +43,6 @@ async function bootstrap() {
   app.useGlobalInterceptors(new TransformInterceptor());
 
   app.enableShutdownHooks();
-
-  app.useGlobalGuards(app.get(ThrottlerGuard));
 
   const config = new DocumentBuilder()
     .setTitle('Real Estate API')
@@ -91,7 +88,7 @@ async function bootstrap() {
   const port = process.env.PORT || 3000;
   await app.listen(port, '0.0.0.0');
 
-  logger.log(`Application is running on: ${await app.getUrl()}`, 'Bootstrap');
+  logger.log(`Application is running on: ${await app.getUrl()}`);
 }
 
 bootstrap().catch((err) => {

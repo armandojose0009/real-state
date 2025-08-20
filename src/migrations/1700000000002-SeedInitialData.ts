@@ -1,16 +1,15 @@
 import { MigrationInterface, QueryRunner } from 'typeorm';
-import { generateSeedData } from '../scripts/generate-test-data';
+import { generateSeedData } from '../seeds';
 
 export class SeedInitialData1700000000002 implements MigrationInterface {
-  name = 'SeedInitialData1700000000002';
-
   public async up(queryRunner: QueryRunner): Promise<void> {
-    const { tenants, properties, listings, transactions } = generateSeedData();
+    const { tenants, properties, listings, transactions } =
+      await generateSeedData();
 
     for (const tenant of tenants) {
       await queryRunner.query(
-        `INSERT INTO "tenant" (id, name) VALUES ($1, $2)`,
-        [tenant.id, tenant.name],
+        `INSERT INTO "tenant" (id, name, email, password, role) VALUES ($1, $2, $3, $4, $5)`,
+        [tenant.id, tenant.name, tenant.email, tenant.password, tenant.role],
       );
     }
 

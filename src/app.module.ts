@@ -23,7 +23,7 @@ import { TransactionsModule } from './transactions/transactions.module';
 import { TenantsModule } from './tenants/tenants.module';
 import { AnalyticsModule } from './analytics/analytics.module';
 import { SqsModule } from './sqs/sqs.module';
-
+import { ThrottlerGuard } from '@nestjs/throttler';
 @Module({
   imports: [
     ConfigModule.forRoot({

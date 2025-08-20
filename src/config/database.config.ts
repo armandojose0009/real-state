@@ -4,6 +4,7 @@ import { Listing } from '../listings/entities/listing.entity';
 import { Transaction } from '../transactions/entities/transaction.entity';
 import { Tenant } from '../tenants/entities/tenant.entity';
 import { parseEnvInt } from './configuration';
+
 export const databaseConfig = (): TypeOrmModuleOptions => ({
   type: 'postgres',
   host: process.env.DB_HOST,
@@ -12,14 +13,15 @@ export const databaseConfig = (): TypeOrmModuleOptions => ({
   password: process.env.DB_PASSWORD,
   database: process.env.DB_DATABASE,
   entities: [Property, Listing, Transaction, Tenant],
-  synchronize: process.env.NODE_ENV === 'development',
-  logging: process.env.NODE_ENV === 'development',
-  migrations: [__dirname + '/../../migrations/*.ts'],
+  synchronize: true,
   migrationsRun: true,
+  logging: process.env.NODE_ENV === 'development',
   extra: {
     ssl:
       process.env.NODE_ENV === 'production'
-        ? { rejectUnauthorized: false }
+        ? {
+            rejectUnauthorized: false,
+          }
         : false,
   },
 });
