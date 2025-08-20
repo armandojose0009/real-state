@@ -2,7 +2,7 @@ services:
   api:
     build: .
     ports:
-      - '3000:3000'
+      - '3001:3000'
     environment:
       - NODE_ENV=${NODE_ENV}
       - DB_HOST=postgres

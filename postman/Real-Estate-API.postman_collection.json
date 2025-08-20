@@ -505,7 +505,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"name\": \"Real Estate Company\",\n  \"email\": \"contact@realestate.com\",\n  \"password\": \"securePassword123\",\n  \"role\": \"ADMIN\"\n}"
+              "raw": "{\n  \"name\": \"Real Estate Company\",\n  \"email\": \"contact@realestate.com\",\n  \"password\": \"SecurePassword123!\",\n  \"role\": \"ADMIN\"\n}"
             },
             "url": {
               "raw": "{{base_url}}/v1/tenants",

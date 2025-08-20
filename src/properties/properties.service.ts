@@ -26,13 +26,16 @@ export class PropertiesService {
     if (!createPropertyDto.tenantId) {
       throw new Error('tenantId is required to invalidate cache');
     }
-    await this.invalidateCache(createPropertyDto.tenantId);
     return this.propertyRepository.save(property);
   }
 
-  async findAll(filterDto: PropertyFilterDto, tenantId: string): Promise<PaginationResponse<Property>> {
+  async findAll(
+    filterDto: PropertyFilterDto,
+    tenantId: string,
+  ): Promise<PaginationResponse<Property>> {
     const cacheKey = this.getCacheKey(filterDto, tenantId);
-    const cached = await this.cacheManager.get<PaginationResponse<Property>>(cacheKey);
+    const cached =
+      await this.cacheManager.get<PaginationResponse<Property>>(cacheKey);
 
     if (cached) {
       return cached;
@@ -66,7 +69,6 @@ export class PropertiesService {
   ): Promise<Property> {
     const property = await this.findOne(id, tenantId);
     Object.assign(property, updatePropertyDto);
-    await this.invalidateCache(tenantId);
     return this.propertyRepository.save(property);
   }
 
@@ -74,7 +76,6 @@ export class PropertiesService {
     const property = await this.findOne(id, tenantId);
     property.deletedAt = new Date();
     await this.propertyRepository.save(property);
-    await this.invalidateCache(tenantId);
   }
 
   async restore(id: string, tenantId: string): Promise<Property> {
@@ -83,7 +84,6 @@ export class PropertiesService {
     });
     if (!property) throw new NotFoundException('Deleted property not found');
     property.deletedAt = null as unknown as Date;
-    await this.invalidateCache(tenantId);
     return this.propertyRepository.save(property);
   }
 
@@ -157,15 +157,5 @@ export class PropertiesService {
   private getCacheKey(filterDto: PropertyFilterDto, tenantId: string): string {
     const { sort, order, ...rest } = filterDto as any;
     return `properties:${tenantId}:${JSON.stringify(rest)}`;
-  }
-
-  private async invalidateCache(tenantId: string): Promise<void> {
-    const pattern = `properties:${tenantId}:*`;
-    const cache = this.cacheManager as any;
-    const keys = await cache.keys(pattern);
-
-    if (keys?.length) {
-      await cache.del(keys);
-    }
   }
 }
