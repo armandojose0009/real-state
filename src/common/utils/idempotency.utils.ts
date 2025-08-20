@@ -1,20 +1,20 @@
-import { Injectable } from '@nestjs/common';
-import { Inject } from '@nestjs/common';
-import { CACHE_MANAGER } from '@nestjs/cache-manager';
-import type { Cache } from 'cache-manager';
+import { v4 as uuidv4 } from 'uuid';
 
-@Injectable()
-export class IdempotencyUtils {
-  constructor(@Inject(CACHE_MANAGER) private cacheManager: Cache) {}
+export function generateIdempotencyKey(prefix?: string): string {
+  const uuid = uuidv4();
+  return prefix ? `${prefix}-${uuid}` : uuid;
+}
 
-  async checkDuplicate(key: string): Promise<boolean> {
-    const exists = await this.cacheManager.get(key);
-    if (exists) return true;
-    await this.cacheManager.set(key, 'processing', 60 * 60 * 24);
+export function validateIdempotencyKey(key: string): boolean {
+  if (!key || typeof key !== 'string') {
     return false;
   }
 
-  async markComplete(key: string, result: any): Promise<void> {
-    await this.cacheManager.set(key, result, 60 * 60 * 24);
-  }
+  // Check if it's a valid UUID format (with or without prefix)
+  const uuidRegex = /^([a-zA-Z0-9-]+-)?\b[0-9a-f]{8}\b-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-\b[0-9a-f]{12}\b$/i;
+  return uuidRegex.test(key);
+}
+
+export function isValidIdempotencyKey(key: string): boolean {
+  return validateIdempotencyKey(key);
 }
