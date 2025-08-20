@@ -64,7 +64,8 @@ export class PropertyImportService {
         zipCode: record.zipCode,
         sector: record.sector,
         propertyType: record.propertyType,
-        location: () => `POINT(${record.longitude} ${record.latitude})`,
+        longitude: record.longitude,
+        latitude: record.latitude,
         valuation: record.valuation,
         bedrooms: record.bedrooms,
         bathrooms: record.bathrooms,
@@ -73,23 +74,24 @@ export class PropertyImportService {
         tenantId,
       }));
 
-      await this.propertyRepository
-        .createQueryBuilder()
-        .insert()
-        .into(Property)
-        .values(properties)
-        .orUpdate(
-          [
-            'valuation',
-            'location',
-            'bedrooms',
-            'bathrooms',
-            'squareFeet',
-            'yearBuilt',
-          ],
-          ['address', 'tenantId'],
-        )
-        .execute();
+      try {
+        await this.propertyRepository
+          .createQueryBuilder()
+          .insert()
+          .into(Property)
+          .values(properties)
+          .orUpdate(
+            ['valuation', 'bedrooms', 'bathrooms', 'squareFeet', 'yearBuilt'],
+            ['address', 'tenantId'],
+          )
+          .execute();
+      } catch (error) {
+        if (error.code === '23503') { // Foreign key violation
+          this.logger.error(`Tenant ${tenantId} does not exist. Skipping batch.`);
+          continue;
+        }
+        throw error;
+      }
     }
   }
 

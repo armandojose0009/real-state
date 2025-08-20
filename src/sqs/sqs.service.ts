@@ -27,11 +27,6 @@ export class SqsService {
       const queueName =
         this.configService.get<string>('SQS_QUEUE_NAME') ||
         'property-import-queue';
-      const endpoint = this.configService.get<string>('SQS_ENDPOINT');
-
-      if (endpoint && endpoint.includes('localstack')) {
-        return `${endpoint}/000000000000/${queueName}`;
-      }
 
       const command = new GetQueueUrlCommand({ QueueName: queueName });
       const response = await this.sqsClient.send(command);
