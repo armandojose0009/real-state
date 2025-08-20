@@ -1,4 +1,4 @@
-FROM node:22
+FROM node:22-alpine3.22
 
 WORKDIR /app
 
@@ -13,3 +13,5 @@ COPY . .
 EXPOSE 3000
 
 CMD ["pm2-runtime", "pm2.ecosystem.config.js"]
+
+

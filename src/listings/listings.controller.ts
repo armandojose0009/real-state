@@ -6,12 +6,14 @@ import {
   Param,
   Patch,
   Delete,
+  Query,
   UseGuards,
   ParseUUIDPipe,
 } from '@nestjs/common';
 import { ListingsService } from './listings.service';
 import { CreateListingDto } from './dto/create-listing.dto';
 import { UpdateListingDto } from './dto/update-listing.dto';
+import { ListingFilterDto } from './dto/listing-filter.dto';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
 import { Roles } from '../common/decorators/roles.decorator';
@@ -51,8 +53,8 @@ export class ListingsController {
     description: 'List of listings',
     type: [Listing],
   })
-  findAll(@TenantId() tenantId: string) {
-    return this.listingsService.findAll(tenantId);
+  findAll(@Query() filterDto: ListingFilterDto, @TenantId() tenantId: string) {
+    return this.listingsService.findAll(filterDto, tenantId);
   }
 
   @Get(':id')

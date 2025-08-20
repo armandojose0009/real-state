@@ -1,0 +1,631 @@
+{
+  "info": {
+    "name": "Real Estate API",
+    "description": "API para sistema de gestión inmobiliaria",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{access_token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:3000",
+      "type": "string"
+    },
+    {
+      "key": "access_token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "property_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "listing_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "transaction_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "tenant_id",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@admin.com\",\n  \"password\": \"Password123!\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/v1/auth/login",
+              "host": ["{{base_url}}"],
+              "path": ["v1", "auth", "login"]
+            }
+          }
+        },
+        {
+          "name": "Refresh Token",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refreshToken\": \"your_refresh_token_here\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/v1/auth/refresh",
+              "host": ["{{base_url}}"],
+              "path": ["v1", "auth", "refresh"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Properties",
+      "item": [
+        {
+          "name": "Create Property",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"address\": \"123 Main St\",\n  \"city\": \"Miami\",\n  \"state\": \"FL\",\n  \"zipCode\": \"33101\",\n  \"sector\": \"Downtown\",\n  \"propertyType\": \"Apartment\",\n  \"location\": {\n    \"type\": \"Point\",\n    \"coordinates\": [-80.1918, 25.7617]\n  },\n  \"valuation\": 350000,\n  \"bedrooms\": 2,\n  \"bathrooms\": 2,\n  \"squareFeet\": 1200,\n  \"yearBuilt\": 2020\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/v1/properties",
+              "host": ["{{base_url}}"],
+              "path": ["v1", "properties"]
+            }
+          }
+        },
+        {
+          "name": "Get All Properties (Paginated)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/v1/properties?limit=10&offset=0&sort=valuation&order=DESC",
+              "host": ["{{base_url}}"],
+              "path": ["v1", "properties"],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "10"
+                },
+                {
+                  "key": "offset",
+                  "value": "0"
+                },
+                {
+                  "key": "sector",
+                  "value": "Downtown",
+                  "disabled": true
+                },
+                {
+                  "key": "propertyType",
+                  "value": "Apartment",
+                  "disabled": true
+                },
+                {
+                  "key": "minPrice",
+                  "value": "200000",
+                  "disabled": true
+                },
+                {
+                  "key": "maxPrice",
+                  "value": "500000",
+                  "disabled": true
+                },
+                {
+                  "key": "search",
+                  "value": "Main",
+                  "disabled": true
+                },
+                {
+                  "key": "sort",
+                  "value": "valuation"
+                },
+                {
+                  "key": "order",
+                  "value": "DESC"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Nearby Properties",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/v1/properties/nearby?lat=25.7617&lng=-80.1918&radius=5000",
+              "host": ["{{base_url}}"],
+              "path": ["v1", "properties", "nearby"],
+              "query": [
+                {
+                  "key": "lat",
+                  "value": "25.7617"
+                },
+                {
+                  "key": "lng",
+                  "value": "-80.1918"
+                },
+                {
+                  "key": "radius",
+                  "value": "5000"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Property by ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/v1/properties/{{property_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["v1", "properties", "{{property_id}}"]
+            }
+          }
+        },
+        {
+          "name": "Update Property",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"valuation\": 375000,\n  \"bedrooms\": 3\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/v1/properties/{{property_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["v1", "properties", "{{property_id}}"]
+            }
+          }
+        },
+        {
+          "name": "Delete Property",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/v1/properties/{{property_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["v1", "properties", "{{property_id}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Listings",
+      "item": [
+        {
+          "name": "Create Listing",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Beautiful Downtown Apartment\",\n  \"description\": \"Modern 2-bedroom apartment\",\n  \"price\": 2500,\n  \"status\": \"active\",\n  \"listedAt\": \"2024-01-15T10:00:00Z\",\n  \"expiresAt\": \"2024-07-15T10:00:00Z\",\n  \"propertyId\": \"{{property_id}}\",\n  \"tenantId\": \"{{tenant_id}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/v1/listings",
+              "host": ["{{base_url}}"],
+              "path": ["v1", "listings"]
+            }
+          }
+        },
+        {
+          "name": "Get All Listings (Paginated)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/v1/listings?limit=10&offset=0&sort=price&order=DESC",
+              "host": ["{{base_url}}"],
+              "path": ["v1", "listings"],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "10"
+                },
+                {
+                  "key": "offset",
+                  "value": "0"
+                },
+                {
+                  "key": "status",
+                  "value": "active",
+                  "disabled": true
+                },
+                {
+                  "key": "minPrice",
+                  "value": "1000",
+                  "disabled": true
+                },
+                {
+                  "key": "maxPrice",
+                  "value": "5000",
+                  "disabled": true
+                },
+                {
+                  "key": "search",
+                  "value": "apartment",
+                  "disabled": true
+                },
+                {
+                  "key": "sort",
+                  "value": "price"
+                },
+                {
+                  "key": "order",
+                  "value": "DESC"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Listing by ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/v1/listings/{{listing_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["v1", "listings", "{{listing_id}}"]
+            }
+          }
+        },
+        {
+          "name": "Update Listing",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"price\": 2700,\n  \"status\": \"sold\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/v1/listings/{{listing_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["v1", "listings", "{{listing_id}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Transactions",
+      "item": [
+        {
+          "name": "Create Transaction",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"type\": \"sale\",\n  \"amount\": 350000,\n  \"transactionDate\": \"2024-01-15T14:30:00Z\",\n  \"description\": \"Property sale\",\n  \"propertyId\": \"{{property_id}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/v1/transactions",
+              "host": ["{{base_url}}"],
+              "path": ["v1", "transactions"]
+            }
+          }
+        },
+        {
+          "name": "Get All Transactions (Paginated)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/v1/transactions?limit=10&offset=0&sort=amount&order=DESC",
+              "host": ["{{base_url}}"],
+              "path": ["v1", "transactions"],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "10"
+                },
+                {
+                  "key": "offset",
+                  "value": "0"
+                },
+                {
+                  "key": "type",
+                  "value": "sale",
+                  "disabled": true
+                },
+                {
+                  "key": "minAmount",
+                  "value": "1000",
+                  "disabled": true
+                },
+                {
+                  "key": "maxAmount",
+                  "value": "500000",
+                  "disabled": true
+                },
+                {
+                  "key": "search",
+                  "value": "property",
+                  "disabled": true
+                },
+                {
+                  "key": "sort",
+                  "value": "amount"
+                },
+                {
+                  "key": "order",
+                  "value": "DESC"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Tenants",
+      "item": [
+        {
+          "name": "Create Tenant",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Real Estate Company\",\n  \"email\": \"contact@realestate.com\",\n  \"password\": \"securePassword123\",\n  \"role\": \"ADMIN\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/v1/tenants",
+              "host": ["{{base_url}}"],
+              "path": ["v1", "tenants"]
+            }
+          }
+        },
+        {
+          "name": "Get All Tenants",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/v1/tenants",
+              "host": ["{{base_url}}"],
+              "path": ["v1", "tenants"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Analytics",
+      "item": [
+        {
+          "name": "Property Distribution",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/v1/analytics/property-distribution",
+              "host": ["{{base_url}}"],
+              "path": ["v1", "analytics", "property-distribution"]
+            }
+          }
+        },
+        {
+          "name": "Monthly Trends",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/v1/analytics/monthly-trends",
+              "host": ["{{base_url}}"],
+              "path": ["v1", "analytics", "monthly-trends"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Property Import",
+      "item": [
+        {
+          "name": "Import Properties CSV",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "type": "file",
+                  "src": [],
+                  "description": "CSV file with property data"
+                },
+                {
+                  "key": "idempotencyKey",
+                  "value": "{{$guid}}",
+                  "type": "text",
+                  "description": "Unique UUID for idempotent requests"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/v1/imports",
+              "host": ["{{base_url}}"],
+              "path": ["v1", "imports"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Health",
+      "item": [
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/health",
+              "host": ["{{base_url}}"],
+              "path": ["health"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

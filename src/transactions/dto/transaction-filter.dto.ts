@@ -1,24 +1,20 @@
 import { IsOptional, IsNumber, IsString, IsIn } from 'class-validator';
 import { Transform } from 'class-transformer';
 
-export class PropertyFilterDto {
+export class TransactionFilterDto {
   @IsOptional()
   @IsString()
-  sector?: string;
-
-  @IsOptional()
-  @IsString()
-  propertyType?: string;
+  type?: string;
 
   @IsOptional()
   @Transform(({ value }) => parseFloat(value))
   @IsNumber()
-  minPrice?: number;
+  minAmount?: number;
 
   @IsOptional()
   @Transform(({ value }) => parseFloat(value))
   @IsNumber()
-  maxPrice?: number;
+  maxAmount?: number;
 
   @IsOptional()
   @IsString()

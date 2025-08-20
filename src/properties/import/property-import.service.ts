@@ -98,14 +98,19 @@ export class PropertyImportService {
     tenantId: string,
     idempotencyKey: string,
   ) {
-    await this.sqsService.sendMessage(
-      {
-        fileBuffer: fileBuffer.toString('base64'),
-        tenantId,
+    try {
+      await this.sqsService.sendMessage(
+        {
+          fileBuffer: fileBuffer.toString('base64'),
+          tenantId,
+          idempotencyKey,
+        },
+        'property-import',
         idempotencyKey,
-      },
-      'property-import',
-      idempotencyKey,
-    );
+      );
+    } catch (error) {
+      this.logger.warn('SQS not available, processing import directly');
+      await this.processImport(fileBuffer, tenantId);
+    }
   }
 }

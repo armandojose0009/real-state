@@ -1,5 +1,6 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
+import { ConfigService } from '@nestjs/config';
 import { Tenant } from '../tenants/entities/tenant.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -14,6 +15,7 @@ export class AuthService {
     @InjectRepository(Tenant)
     private tenantsRepository: Repository<Tenant>,
     private jwtService: JwtService,
+    private configService: ConfigService,
   ) {}
 
   async validateUser(email: string, password: string): Promise<Tenant> {
@@ -35,8 +37,8 @@ export class AuthService {
     return {
       accessToken: this.jwtService.sign(payload),
       refreshToken: this.jwtService.sign(payload, {
-        expiresIn: process.env.REFRESH_TOKEN_EXPIRES_IN,
-        secret: process.env.REFRESH_TOKEN_SECRET,
+        expiresIn: this.configService.get('jwt.refreshExpiresIn'),
+        secret: this.configService.get('jwt.refreshSecret'),
       }),
     };
   }
@@ -44,7 +46,7 @@ export class AuthService {
   async refreshToken(refreshTokenDto: RefreshTokenDto) {
     try {
       const payload = this.jwtService.verify(refreshTokenDto.refreshToken, {
-        secret: process.env.REFRESH_TOKEN_SECRET,
+        secret: this.configService.get('jwt.refreshSecret'),
       });
       const tenant = await this.tenantsRepository.findOne({
         where: { id: payload.sub },
@@ -60,13 +62,11 @@ export class AuthService {
       return {
         accessToken: this.jwtService.sign(newPayload),
         refreshToken: this.jwtService.sign(newPayload, {
-          expiresIn: process.env.REFRESH_TOKEN_EXPIRES_IN,
-          secret: process.env.REFRESH_TOKEN_SECRET,
+          expiresIn: this.configService.get('jwt.refreshExpiresIn'),
+          secret: this.configService.get('jwt.refreshSecret'),
         }),
       };
     } catch (error) {
-      const errorMessage =
-        error instanceof Error && error.message ? error.message : String(error);
       throw new UnauthorizedException('Invalid refresh token');
     }
   }

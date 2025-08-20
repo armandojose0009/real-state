@@ -2,7 +2,7 @@ module.exports = {
   apps: [
     {
       name: 'real-estate-api',
-      script: 'npm',
+      script: 'pnpm',
       args: 'run start:dev',
       exec_mode: 'fork',
       instances: 1,

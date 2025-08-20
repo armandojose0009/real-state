@@ -1,14 +1,10 @@
 import { IsOptional, IsNumber, IsString, IsIn } from 'class-validator';
 import { Transform } from 'class-transformer';
 
-export class PropertyFilterDto {
+export class ListingFilterDto {
   @IsOptional()
   @IsString()
-  sector?: string;
-
-  @IsOptional()
-  @IsString()
-  propertyType?: string;
+  status?: string;
 
   @IsOptional()
   @Transform(({ value }) => parseFloat(value))

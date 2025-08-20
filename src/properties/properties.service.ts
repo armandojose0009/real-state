@@ -5,6 +5,8 @@ import { Property } from './entities/property.entity';
 import { CreatePropertyDto } from './dto/create-property.dto';
 import { UpdatePropertyDto } from './dto/update-property.dto';
 import { PropertyFilterDto } from './dto/property-filter.dto';
+import { PaginationResponse } from '../common/dto/pagination-response.dto';
+import { createPaginationResponse } from '../common/utils/pagination.util';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Inject } from '@nestjs/common';
 import type { Cache } from 'cache-manager';
@@ -28,22 +30,25 @@ export class PropertiesService {
     return this.propertyRepository.save(property);
   }
 
-  async findAll(filterDto: PropertyFilterDto, tenantId: string) {
+  async findAll(filterDto: PropertyFilterDto, tenantId: string): Promise<PaginationResponse<Property>> {
     const cacheKey = this.getCacheKey(filterDto, tenantId);
-    const cached = await this.cacheManager.get<{
-      data: Property[];
-      count: number;
-    }>(cacheKey);
+    const cached = await this.cacheManager.get<PaginationResponse<Property>>(cacheKey);
 
     if (cached) {
       return cached;
     }
 
     const query = this.buildQuery(filterDto, tenantId);
-    const [data, count] = await query.getManyAndCount();
+    const [data, total] = await query.getManyAndCount();
+    const response = createPaginationResponse(
+      data,
+      total,
+      filterDto.limit || 10,
+      filterDto.offset || 0,
+    );
 
-    await this.cacheManager.set(cacheKey, { data, count }, this.CACHE_TTL);
-    return { data, count };
+    await this.cacheManager.set(cacheKey, response, this.CACHE_TTL);
+    return response;
   }
 
   async findOne(id: string, tenantId: string): Promise<Property> {
@@ -139,9 +144,12 @@ export class PropertiesService {
       });
     }
     if (filterDto.sort) {
-      const orderDirection = filterDto.order ? filterDto.order : 'ASC';
+      const orderDirection = filterDto.order || 'ASC';
       query.orderBy(`property.${filterDto.sort}`, orderDirection);
     }
+
+    query.take(filterDto.limit || 10);
+    query.skip(filterDto.offset || 0);
 
     return query;
   }

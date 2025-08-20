@@ -9,6 +9,8 @@ import {
   Query,
   UseGuards,
   ParseUUIDPipe,
+  ParseFloatPipe,
+  ParseIntPipe,
 } from '@nestjs/common';
 import { PropertiesService } from './properties.service';
 import { CreatePropertyDto } from './dto/create-property.dto';
@@ -50,8 +52,29 @@ export class PropertiesController {
   @ApiOperation({ summary: 'Get all properties' })
   @ApiResponse({
     status: 200,
-    description: 'List of properties',
-    type: [Property],
+    description: 'Paginated list of properties',
+    schema: {
+      type: 'object',
+      properties: {
+        data: {
+          type: 'array',
+          items: { $ref: '#/components/schemas/Property' }
+        },
+        pagination: {
+          type: 'object',
+          properties: {
+            total: { type: 'number' },
+            totalPages: { type: 'number' },
+            currentPage: { type: 'number' },
+            limit: { type: 'number' },
+            hasNext: { type: 'boolean' },
+            hasPrev: { type: 'boolean' },
+            nextPage: { type: 'number', nullable: true },
+            prevPage: { type: 'number', nullable: true }
+          }
+        }
+      }
+    }
   })
   findAll(@Query() filterDto: PropertyFilterDto, @TenantId() tenantId: string) {
     return this.propertiesService.findAll(filterDto, tenantId);
@@ -66,9 +89,9 @@ export class PropertiesController {
     type: [Property],
   })
   async findByRadius(
-    @Query('lat') lat: number,
-    @Query('lng') lng: number,
-    @Query('radius') radius: number,
+    @Query('lat', ParseFloatPipe) lat: number,
+    @Query('lng', ParseFloatPipe) lng: number,
+    @Query('radius', ParseIntPipe) radius: number,
     @TenantId() tenantId: string,
   ) {
     return this.propertiesService.findByRadius(lat, lng, radius, tenantId);

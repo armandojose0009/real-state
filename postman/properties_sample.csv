@@ -1,0 +1,11 @@
+address,city,state,zipCode,sector,propertyType,longitude,latitude,valuation,bedrooms,bathrooms,squareFeet,yearBuilt
+123 Main St,Miami,FL,33101,Downtown,Apartment,-80.1918,25.7617,350000,2,2,1200,2020
+456 Ocean Ave,Miami Beach,FL,33139,South Beach,Condo,-80.1300,25.7907,750000,3,2,1800,2018
+789 Biscayne Blvd,Miami,FL,33132,Brickell,Apartment,-80.1918,25.7617,450000,1,1,900,2019
+321 Collins Ave,Miami Beach,FL,33139,Mid Beach,Condo,-80.1200,25.8000,650000,2,2,1400,2017
+654 Lincoln Rd,Miami Beach,FL,33139,Lincoln Road,Apartment,-80.1400,25.7900,550000,2,1,1100,2021
+987 Washington Ave,Miami Beach,FL,33139,South Beach,Condo,-80.1350,25.7850,800000,3,3,2000,2016
+147 Flagler St,Miami,FL,33130,Downtown,Apartment,-80.1950,25.7750,320000,1,1,800,2022
+258 Coral Way,Miami,FL,33145,Coral Gables,House,-80.2400,25.7200,950000,4,3,2500,2015
+369 Miracle Mile,Coral Gables,FL,33134,Coral Gables,Townhouse,-80.2500,25.7300,720000,3,2,1600,2019
+741 Key Biscayne Dr,Key Biscayne,FL,33149,Key Biscayne,Villa,-80.1600,25.6900,1200000,5,4,3500,2014

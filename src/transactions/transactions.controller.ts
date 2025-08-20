@@ -6,12 +6,14 @@ import {
   Param,
   Patch,
   Delete,
+  Query,
   UseGuards,
   ParseUUIDPipe,
 } from '@nestjs/common';
 import { TransactionsService } from './transactions.service';
 import { CreateTransactionDto } from './dto/create-transaction.dto';
 import { UpdateTransactionDto } from './dto/update-transaction.dto';
+import { TransactionFilterDto } from './dto/transaction-filter.dto';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
 import { Roles } from '../common/decorators/roles.decorator';
@@ -58,8 +60,8 @@ export class TransactionsController {
     description: 'List of transactions',
     type: [Transaction],
   })
-  findAll(@TenantId() tenantId: string) {
-    return this.transactionsService.findAll(tenantId);
+  findAll(@Query() filterDto: TransactionFilterDto, @TenantId() tenantId: string) {
+    return this.transactionsService.findAll(filterDto, tenantId);
   }
 
   @Get(':id')

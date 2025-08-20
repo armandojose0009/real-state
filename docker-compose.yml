@@ -20,9 +20,9 @@ services:
       - AWS_SECRET_ACCESS_KEY=test
       - AWS_REGION=${AWS_REGION:-us-east-1}
       - SQS_ENDPOINT=http://localstack:4566
-      - SQS_QUEUE_NAME=${SQS_QUEUE_NAME:-real-estate-queue}
+      - SQS_QUEUE_NAME=${SQS_QUEUE_NAME:-property-import-queue}
       - AWS_S3_ENDPOINT=http://localstack:4566
-      - AWS_S3_BUCKET=${AWS_S3_BUCKET:-real-estate-bucket}
+      - AWS_S3_BUCKET=${AWS_S3_BUCKET:-real-estate-assets}
     depends_on:
       postgres:
         condition: service_healthy
@@ -69,27 +69,30 @@ services:
       - real-estate-network
 
   localstack:
-    image: localstack/localstack:latest
+    image: localstack/localstack:2.3.2
     ports:
       - '4566:4566'
       - '4571:4571'
     environment:
-      - SERVICES=sqs,s3 # Agregar s3 a los servicios
+      - SERVICES=sqs,s3
       - DEFAULT_REGION=${AWS_REGION:-us-east-1}
       - AWS_ACCESS_KEY_ID=test
       - AWS_SECRET_ACCESS_KEY=test
       - AWS_DEFAULT_REGION=${AWS_REGION:-us-east-1}
-      - DEBUG=1
+      - DEBUG=0
       - EDGE_PORT=4566
       - HOSTNAME_EXTERNAL=localstack
+      - PERSISTENCE=0
+      - LS_LOG=error
     volumes:
-      - ./scripts/localstack-init.sh:/docker-entrypoint-initaws.d/localstack-init.sh
-      - /var/run/docker.sock:/var/run/docker.sock
+      - ./scripts/localstack-init.sh:/etc/localstack/init/ready.d/init-aws.sh
+      - ./localstack:/var/lib/localstack
     healthcheck:
-      test: ['CMD', 'curl', '-f', 'http://localhost:4566/health']
-      interval: 10s
-      timeout: 5s
-      retries: 5
+      test: ['CMD', 'curl', '-f', 'http://localhost:4566/_localstack/health']
+      interval: 15s
+      timeout: 10s
+      retries: 10
+      start_period: 30s
     networks:
       - real-estate-network
 
