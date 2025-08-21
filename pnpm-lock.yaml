@@ -162,18 +162,9 @@ importers:
       '@nestjs/testing':
         specifier: ^11.0.1
         version: 11.1.6(@nestjs/common@11.1.6(class-transformer@0.5.1)(class-validator@0.14.2)(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/core@11.1.6)(@nestjs/platform-express@11.1.6)
-      '@types/aws-sdk':
-        specifier: ^2.7.4
-        version: 2.7.4
       '@types/bcrypt':
         specifier: ^6.0.0
         version: 6.0.0
-      '@types/bull':
-        specifier: ^4.10.4
-        version: 4.10.4
-      '@types/cache-manager':
-        specifier: ^5.0.0
-        version: 5.0.0
       '@types/express':
         specifier: ^5.0.0
         version: 5.0.3
@@ -198,6 +189,12 @@ importers:
       '@types/uuid':
         specifier: ^10.0.0
         version: 10.0.0
+      '@typescript-eslint/eslint-plugin':
+        specifier: ^8.20.0
+        version: 8.39.1(@typescript-eslint/parser@8.39.1(eslint@9.33.0)(typescript@5.9.2))(eslint@9.33.0)(typescript@5.9.2)
+      '@typescript-eslint/parser':
+        specifier: ^8.20.0
+        version: 8.39.1(eslint@9.33.0)(typescript@5.9.2)
       eslint:
         specifier: ^9.18.0
         version: 9.33.0
@@ -1455,10 +1452,6 @@ packages:
   '@tybys/wasm-util@0.10.0':
     resolution: {integrity: sha512-VyyPYFlOMNylG45GoAe0xDoLwWuowvf92F9kySqzYh8vmYm7D2u4iUJKa1tOUpS70Ku13ASrOkS4ScXFsTaCNQ==}
 
-  '@types/aws-sdk@2.7.4':
-    resolution: {integrity: sha512-BdGaQDSow2hYmHbn7RV/Lg9rvh/JBD6gFRKAeCh3eqjc2eAjaz5m+cjuX1lpaWOisMeb0ep8sZBhtOLHHZ8qAA==}
-    deprecated: This is a stub types definition. aws-sdk provides its own type definitions, so you do not need this installed.
-
   '@types/babel__core@7.20.5':
     resolution: {integrity: sha512-qoQprZvz5wQFJwMDqeseRXWv3rqMvhgpbXFfVyWhbx9X47POIA6i/+dXefEmZKoAgOaTdaIgNSMqMIU61yRyzA==}
 
@@ -1476,14 +1469,6 @@ packages:
 
   '@types/body-parser@1.19.6':
     resolution: {integrity: sha512-HLFeCYgz89uk22N5Qg3dvGvsv46B8GLvKKo1zKG4NybA8U2DiEO3w9lqGg29t/tfLRJpJ6iQxnVw4OnB7MoM9g==}
-
-  '@types/bull@4.10.4':
-    resolution: {integrity: sha512-A+8uxa5GbzKcS7kZ9Z1OcOeSyrvVmfHtZi3VIrH1Gws0G0sTknB2SRllxTaAYhycGn7+nC0Pb8VjxIyZiTM81A==}
-    deprecated: This is a stub types definition. bull provides its own type definitions, so you do not need this installed.
-
-  '@types/cache-manager@5.0.0':
-    resolution: {integrity: sha512-YaQBBhn2OIShxGMH7l1qzGgXCQJ2TRYTqMhFMXRBkDcXQIlqXv+XFkBGstwXSyv7q+JQm3HbpVhaVF8l5tr+Hg==}
-    deprecated: This is a stub types definition. cache-manager provides its own type definitions, so you do not need this installed.
 
   '@types/cls-hooked@4.3.9':
     resolution: {integrity: sha512-CMtHMz6Q/dkfcHarq9nioXH8BDPP+v5xvd+N90lBQ2bdmu06UvnLDqxTKoOJzz4SzIwb/x9i4UXGAAcnUDuIvg==}
@@ -6098,10 +6083,6 @@ snapshots:
       tslib: 2.8.1
     optional: true
 
-  '@types/aws-sdk@2.7.4':
-    dependencies:
-      aws-sdk: 2.1692.0
-
   '@types/babel__core@7.20.5':
     dependencies:
       '@babel/parser': 7.28.3
@@ -6131,16 +6112,6 @@ snapshots:
     dependencies:
       '@types/connect': 3.4.38
       '@types/node': 22.17.2
-
-  '@types/bull@4.10.4':
-    dependencies:
-      bull: 4.16.5
-    transitivePeerDependencies:
-      - supports-color
-
-  '@types/cache-manager@5.0.0':
-    dependencies:
-      cache-manager: 7.1.1
 
   '@types/cls-hooked@4.3.9':
     dependencies:

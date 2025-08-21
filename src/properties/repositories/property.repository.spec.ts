@@ -5,8 +5,7 @@ describe('PropertyRepository', () => {
 
   beforeEach(() => {
     repository = new PropertyRepository();
-    
-    // Mock the createQueryBuilder method
+
     repository.createQueryBuilder = jest.fn();
   });
 
@@ -27,7 +26,12 @@ describe('PropertyRepository', () => {
       const tenantId = 'tenant-123';
 
       const mockProperties = [
-        { id: '1', address: '123 Main St', sector: 'Downtown', propertyType: 'House' },
+        {
+          id: '1',
+          address: '123 Main St',
+          sector: 'Downtown',
+          propertyType: 'House',
+        },
       ];
 
       const queryBuilder = {
@@ -39,7 +43,9 @@ describe('PropertyRepository', () => {
         getManyAndCount: jest.fn().mockResolvedValue([mockProperties, 1]),
       };
 
-      (repository.createQueryBuilder as jest.Mock).mockReturnValue(queryBuilder);
+      (repository.createQueryBuilder as jest.Mock).mockReturnValue(
+        queryBuilder,
+      );
 
       const result = await repository.findWithFilters(filterDto, tenantId);
 

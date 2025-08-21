@@ -58,7 +58,7 @@ export class PropertiesController {
       properties: {
         data: {
           type: 'array',
-          items: { $ref: '#/components/schemas/Property' }
+          items: { $ref: '#/components/schemas/Property' },
         },
         pagination: {
           type: 'object',
@@ -70,11 +70,11 @@ export class PropertiesController {
             hasNext: { type: 'boolean' },
             hasPrev: { type: 'boolean' },
             nextPage: { type: 'number', nullable: true },
-            prevPage: { type: 'number', nullable: true }
-          }
-        }
-      }
-    }
+            prevPage: { type: 'number', nullable: true },
+          },
+        },
+      },
+    },
   })
   findAll(@Query() filterDto: PropertyFilterDto, @TenantId() tenantId: string) {
     return this.propertiesService.findAll(filterDto, tenantId);

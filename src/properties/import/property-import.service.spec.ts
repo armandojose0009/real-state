@@ -6,7 +6,6 @@ import { PropertyImportService } from './property-import.service';
 import { Property } from '../entities/property.entity';
 import { SqsService } from '../../sqs/sqs.service';
 
-// Mock csv-parse
 jest.mock('csv-parse/sync', () => ({
   parse: jest.fn(),
 }));
@@ -50,10 +49,8 @@ describe('PropertyImportService', () => {
     propertyRepository = module.get(getRepositoryToken(Property));
     sqsService = module.get(SqsService);
 
-    // Get the mocked parse function
     mockParse = require('csv-parse/sync').parse;
 
-    // Mock logger to avoid console output during tests
     jest.spyOn(Logger.prototype, 'error').mockImplementation();
     jest.spyOn(Logger.prototype, 'warn').mockImplementation();
   });
@@ -72,7 +69,7 @@ describe('PropertyImportService', () => {
           zipCode: '12345',
           sector: 'Downtown',
           propertyType: 'House',
-          longitude: -74.0060,
+          longitude: -74.006,
           latitude: 40.7128,
           valuation: 250000,
           bedrooms: 3,
@@ -95,7 +92,9 @@ describe('PropertyImportService', () => {
         execute: jest.fn().mockResolvedValue({}),
       };
 
-      propertyRepository.createQueryBuilder.mockReturnValue(queryBuilder as any);
+      propertyRepository.createQueryBuilder.mockReturnValue(
+        queryBuilder as any,
+      );
 
       await service.processImport(fileBuffer, tenantId);
 
@@ -115,7 +114,7 @@ describe('PropertyImportService', () => {
           zipCode: '12345',
           sector: 'Downtown',
           propertyType: 'House',
-          longitude: -74.0060,
+          longitude: -74.006,
           latitude: 40.7128,
           valuation: 250000,
           bedrooms: 3,
@@ -140,7 +139,7 @@ describe('PropertyImportService', () => {
         zipCode: '12345',
         sector: 'Downtown',
         propertyType: 'House',
-        longitude: -74.0060,
+        longitude: -74.006,
         latitude: 40.7128,
         valuation: 250000,
         bedrooms: 3,
@@ -162,11 +161,12 @@ describe('PropertyImportService', () => {
         execute: jest.fn().mockResolvedValue({}),
       };
 
-      propertyRepository.createQueryBuilder.mockReturnValue(queryBuilder as any);
+      propertyRepository.createQueryBuilder.mockReturnValue(
+        queryBuilder as any,
+      );
 
       await service.processImport(fileBuffer, tenantId);
 
-      // Should be called 3 times (1200 / 500 = 2.4, rounded up to 3)
       expect(queryBuilder.execute).toHaveBeenCalledTimes(3);
     });
 
@@ -179,7 +179,7 @@ describe('PropertyImportService', () => {
           zipCode: '12345',
           sector: 'Downtown',
           propertyType: 'House',
-          longitude: -74.0060,
+          longitude: -74.006,
           latitude: 40.7128,
           valuation: 250000,
           bedrooms: 3,
@@ -199,10 +199,12 @@ describe('PropertyImportService', () => {
         into: jest.fn().mockReturnThis(),
         values: jest.fn().mockReturnThis(),
         orUpdate: jest.fn().mockReturnThis(),
-        execute: jest.fn().mockRejectedValue({ code: '23503' }), // Foreign key violation
+        execute: jest.fn().mockRejectedValue({ code: '23503' }),
       };
 
-      propertyRepository.createQueryBuilder.mockReturnValue(queryBuilder as any);
+      propertyRepository.createQueryBuilder.mockReturnValue(
+        queryBuilder as any,
+      );
 
       await service.processImport(fileBuffer, tenantId);
 
@@ -220,7 +222,7 @@ describe('PropertyImportService', () => {
           zipCode: '12345',
           sector: 'Downtown',
           propertyType: 'House',
-          longitude: -74.0060,
+          longitude: -74.006,
           latitude: 40.7128,
           valuation: 250000,
           bedrooms: 3,
@@ -243,9 +245,13 @@ describe('PropertyImportService', () => {
         execute: jest.fn().mockRejectedValue(new Error('Database error')),
       };
 
-      propertyRepository.createQueryBuilder.mockReturnValue(queryBuilder as any);
+      propertyRepository.createQueryBuilder.mockReturnValue(
+        queryBuilder as any,
+      );
 
-      await expect(service.processImport(fileBuffer, tenantId)).rejects.toThrow('Database error');
+      await expect(service.processImport(fileBuffer, tenantId)).rejects.toThrow(
+        'Database error',
+      );
     });
   });
 
@@ -277,12 +283,15 @@ describe('PropertyImportService', () => {
 
       sqsService.sendMessage.mockRejectedValue(new Error('SQS not available'));
 
-      // Mock processImport method
-      const processImportSpy = jest.spyOn(service, 'processImport').mockResolvedValue();
+      const processImportSpy = jest
+        .spyOn(service, 'processImport')
+        .mockResolvedValue();
 
       await service.enqueueImportJob(fileBuffer, tenantId, idempotencyKey);
 
-      expect(Logger.prototype.warn).toHaveBeenCalledWith('SQS not available, processing import directly');
+      expect(Logger.prototype.warn).toHaveBeenCalledWith(
+        'SQS not available, processing import directly',
+      );
       expect(processImportSpy).toHaveBeenCalledWith(fileBuffer, tenantId);
 
       processImportSpy.mockRestore();
@@ -294,7 +303,6 @@ describe('PropertyImportService', () => {
       const fileBuffer = Buffer.from('csv,data');
       const tenantId = 'tenant-123';
 
-      // Mock the parse function to capture the cast function
       let castFunction: any;
       mockParse.mockImplementation((buffer, options) => {
         castFunction = options.cast;
@@ -303,11 +311,18 @@ describe('PropertyImportService', () => {
 
       await service.processImport(fileBuffer, tenantId);
 
-      // Test the cast function
-      expect(castFunction('123.45', { header: false, column: 'longitude' })).toBe(123.45);
-      expect(castFunction('100', { header: false, column: 'bedrooms' })).toBe(100);
-      expect(castFunction('test', { header: false, column: 'address' })).toBe('test');
-      expect(castFunction('header', { header: true, column: 'any' })).toBe('header');
+      expect(
+        castFunction('123.45', { header: false, column: 'longitude' }),
+      ).toBe(123.45);
+      expect(castFunction('100', { header: false, column: 'bedrooms' })).toBe(
+        100,
+      );
+      expect(castFunction('test', { header: false, column: 'address' })).toBe(
+        'test',
+      );
+      expect(castFunction('header', { header: true, column: 'any' })).toBe(
+        'header',
+      );
     });
   });
 });

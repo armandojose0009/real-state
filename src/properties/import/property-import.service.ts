@@ -86,8 +86,10 @@ export class PropertyImportService {
           )
           .execute();
       } catch (error) {
-        if (error.code === '23503') { // Foreign key violation
-          this.logger.error(`Tenant ${tenantId} does not exist. Skipping batch.`);
+        if (error.code === '23503') {
+          this.logger.error(
+            `Tenant ${tenantId} does not exist. Skipping batch.`,
+          );
           continue;
         }
         throw error;

@@ -81,7 +81,7 @@ describe('PropertiesController', () => {
         sector: 'Downtown',
         propertyType: 'House',
         latitude: 40.7128,
-        longitude: -74.0060,
+        longitude: -74.006,
         valuation: 250000,
         bedrooms: 3,
         bathrooms: 2,
@@ -117,7 +117,7 @@ describe('PropertiesController', () => {
   describe('findByRadius', () => {
     it('should return nearby properties', async () => {
       const lat = 40.7128;
-      const lng = -74.0060;
+      const lng = -74.006;
       const radius = 1000;
       const tenantId = 'tenant-123';
 
@@ -125,7 +125,12 @@ describe('PropertiesController', () => {
 
       const result = await controller.findByRadius(lat, lng, radius, tenantId);
 
-      expect(service.findByRadius).toHaveBeenCalledWith(lat, lng, radius, tenantId);
+      expect(service.findByRadius).toHaveBeenCalledWith(
+        lat,
+        lng,
+        radius,
+        tenantId,
+      );
       expect(result).toEqual([mockProperty]);
     });
   });

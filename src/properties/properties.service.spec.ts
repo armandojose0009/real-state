@@ -83,7 +83,7 @@ describe('PropertiesService', () => {
         sector: 'Downtown',
         propertyType: 'House',
         latitude: 40.7128,
-        longitude: -74.0060,
+        longitude: -74.006,
         valuation: 250000,
         bedrooms: 3,
         bathrooms: 2,
@@ -105,7 +105,9 @@ describe('PropertiesService', () => {
     it('should throw error when tenantId is missing', async () => {
       const createDto = { address: '123 Main St' } as CreatePropertyDto;
 
-      await expect(service.create(createDto)).rejects.toThrow('tenantId is required to invalidate cache');
+      await expect(service.create(createDto)).rejects.toThrow(
+        'tenantId is required to invalidate cache',
+      );
     });
   });
 
@@ -184,14 +186,29 @@ describe('PropertiesService', () => {
 
       await service.findAll(filterDto, tenantId);
 
-      expect(queryBuilder.andWhere).toHaveBeenCalledWith('property.sector = :sector', { sector: 'Downtown' });
-      expect(queryBuilder.andWhere).toHaveBeenCalledWith('property.propertyType = :propertyType', { propertyType: 'House' });
-      expect(queryBuilder.andWhere).toHaveBeenCalledWith('property.valuation BETWEEN :minPrice AND :maxPrice', {
-        minPrice: 200000,
-        maxPrice: 300000,
-      });
-      expect(queryBuilder.andWhere).toHaveBeenCalledWith('property.address ILIKE :search', { search: '%Main%' });
-      expect(queryBuilder.orderBy).toHaveBeenCalledWith('property.valuation', 'DESC');
+      expect(queryBuilder.andWhere).toHaveBeenCalledWith(
+        'property.sector = :sector',
+        { sector: 'Downtown' },
+      );
+      expect(queryBuilder.andWhere).toHaveBeenCalledWith(
+        'property.propertyType = :propertyType',
+        { propertyType: 'House' },
+      );
+      expect(queryBuilder.andWhere).toHaveBeenCalledWith(
+        'property.valuation BETWEEN :minPrice AND :maxPrice',
+        {
+          minPrice: 200000,
+          maxPrice: 300000,
+        },
+      );
+      expect(queryBuilder.andWhere).toHaveBeenCalledWith(
+        'property.address ILIKE :search',
+        { search: '%Main%' },
+      );
+      expect(queryBuilder.orderBy).toHaveBeenCalledWith(
+        'property.valuation',
+        'DESC',
+      );
       expect(queryBuilder.take).toHaveBeenCalledWith(5);
       expect(queryBuilder.skip).toHaveBeenCalledWith(10);
     });
@@ -218,7 +235,9 @@ describe('PropertiesService', () => {
 
       repository.findOne.mockResolvedValue(null);
 
-      await expect(service.findOne(id, tenantId)).rejects.toThrow(NotFoundException);
+      await expect(service.findOne(id, tenantId)).rejects.toThrow(
+        NotFoundException,
+      );
     });
   });
 
@@ -245,7 +264,10 @@ describe('PropertiesService', () => {
       const tenantId = 'tenant-123';
 
       repository.findOne.mockResolvedValue(mockProperty as any);
-      repository.save.mockResolvedValue({ ...mockProperty, deletedAt: new Date() } as any);
+      repository.save.mockResolvedValue({
+        ...mockProperty,
+        deletedAt: new Date(),
+      } as any);
 
       await service.remove(id, tenantId);
 
@@ -260,7 +282,10 @@ describe('PropertiesService', () => {
       const deletedProperty = { ...mockProperty, deletedAt: new Date() };
 
       repository.findOne.mockResolvedValue(deletedProperty as any);
-      repository.save.mockResolvedValue({ ...deletedProperty, deletedAt: null } as any);
+      repository.save.mockResolvedValue({
+        ...deletedProperty,
+        deletedAt: null,
+      } as any);
 
       const result = await service.restore(id, tenantId);
 
@@ -274,14 +299,16 @@ describe('PropertiesService', () => {
 
       repository.findOne.mockResolvedValue(null);
 
-      await expect(service.restore(id, tenantId)).rejects.toThrow(NotFoundException);
+      await expect(service.restore(id, tenantId)).rejects.toThrow(
+        NotFoundException,
+      );
     });
   });
 
   describe('findByRadius', () => {
     it('should return cached results when available', async () => {
       const lat = 40.7128;
-      const lng = -74.0060;
+      const lng = -74.006;
       const radius = 1000;
       const tenantId = 'tenant-123';
 
@@ -295,7 +322,7 @@ describe('PropertiesService', () => {
 
     it('should query database and cache results when not cached', async () => {
       const lat = 40.7128;
-      const lng = -74.0060;
+      const lng = -74.006;
       const radius = 1000;
       const tenantId = 'tenant-123';
       const queryBuilder = {
